@@ -23,6 +23,18 @@
         "command": "speedrun-timer.stop-timer",
         "title": "Stop Speedrun Timer"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "speedrun-timer.start-timer",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
+      },
+      {
+        "command": "speedrun-timer.stop-timer",
+        "key": "ctrl+shift+x",
+        "mac": "cmd+shift+x"
+      }
     ]
   },
   "scripts": {

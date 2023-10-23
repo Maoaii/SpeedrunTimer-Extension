@@ -1,11 +1,6 @@
-import { stat } from "fs";
 import * as vscode from "vscode";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
   console.log(
     'Congratulations, your extension "speedrun-timer" is now active!'
   );
@@ -15,6 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   statusItem.text = "Start timer";
   statusItem.command = "speedrun-timer.start-timer";
+  statusItem.tooltip = "Start the speedrun timer";
   statusItem.show();
 
   let disposable = vscode.commands.registerCommand(
@@ -25,8 +21,9 @@ export function activate(context: vscode.ExtensionContext) {
       let timer = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Left
       );
-      timer.text = "00:00:00";
+      timer.text = "0hr 0m 0s";
       timer.command = "speedrun-timer.stop-timer";
+      timer.tooltip = "Stop the speedrun timer";
       timer.show();
 
       // Start the timer
@@ -40,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
         seconds = seconds % 60;
         minutes = minutes % 60;
         hours = hours % 60;
-        timer.text = `${hours}:${minutes}:${seconds}`;
+        timer.text = `${hours}hr ${minutes}m ${seconds}s`;
       }, 1000);
 
       // Show a message box to the user
@@ -53,12 +50,29 @@ export function activate(context: vscode.ExtensionContext) {
         "speedrun-timer.stop-timer",
         () => {
           timer.hide();
-          statusItem.text = "Start timer";
           statusItem.show();
 
-          vscode.window.showInformationMessage(
-            `Speedrun timer stopped. Good job! Your time was: ${timer.text}`
-          );
+          vscode.window
+            .showInformationMessage(
+              `Nice work! \nYour time was: ${timer.text}.`,
+              "Save speedrun?",
+              "No thanks"
+            )
+            .then((value) => {
+              // Save speedrun time
+              if (value === "Save speedrun?") {
+                vscode.window
+                  .showInputBox({
+                    prompt: "Save your time to a file",
+                    placeHolder: "Enter a file name",
+                  })
+                  .then((value) => {
+                    if (value) {
+                      // Save a file with the name of the input
+                    }
+                  });
+              }
+            });
 
           stopTimer.dispose();
         }
@@ -70,4 +84,8 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  vscode.window.showInformationMessage(
+    "Thank you for using Speedrun Timer! Come back soon!"
+  );
+}
