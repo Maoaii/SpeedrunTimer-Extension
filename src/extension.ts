@@ -6,11 +6,11 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   let statusItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Left
+    vscode.StatusBarAlignment.Right
   );
-  statusItem.text = "Start timer";
+  statusItem.text = `$(watch) Start speedrun`;
   statusItem.command = "speedrun-timer.start-timer";
-  statusItem.tooltip = "Start the speedrun timer";
+  statusItem.tooltip = "Click to start the speedrun timer.";
   statusItem.show();
 
   let disposable = vscode.commands.registerCommand(
@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
       statusItem.hide();
       // Add a timer to the status bar
       let timer = vscode.window.createStatusBarItem(
-        vscode.StatusBarAlignment.Left
+        vscode.StatusBarAlignment.Right
       );
       timer.text = "0hr 0m 0s";
       timer.command = "speedrun-timer.stop-timer";
@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       // Start the timer
       let startTime = new Date().getTime();
-      setInterval(() => {
+      let intervalTimer = setInterval(() => {
         let currentTime = new Date().getTime();
         let elapsedTime = currentTime - startTime;
         let seconds = Math.floor(elapsedTime / 1000);
@@ -49,12 +49,14 @@ export function activate(context: vscode.ExtensionContext) {
       let stopTimer = vscode.commands.registerCommand(
         "speedrun-timer.stop-timer",
         () => {
+          let endTime = timer.text;
+          clearInterval(intervalTimer);
           timer.hide();
           statusItem.show();
 
           vscode.window
             .showInformationMessage(
-              `Nice work! \nYour time was: ${timer.text}.`,
+              `Nice work! \nYour time was: ${endTime}.`,
               "Save speedrun?",
               "No thanks"
             )
@@ -62,14 +64,14 @@ export function activate(context: vscode.ExtensionContext) {
               // Save speedrun time
               if (value === "Save speedrun?") {
                 vscode.window
-                  .showInputBox({
-                    prompt: "Save your time to a file",
-                    placeHolder: "Enter a file name",
+                  .showSaveDialog({
+                    filters: {
+                      Text: ["txt"],
+                    },
                   })
-                  .then((value) => {
-                    if (value) {
-                      // Save a file with the name of the input
-                    }
+                  .then((uri) => {
+                    const data = Buffer.from(`Speedrun time: ${endTime}`);
+                    vscode.workspace.fs.writeFile(uri!, data);
                   });
               }
             });

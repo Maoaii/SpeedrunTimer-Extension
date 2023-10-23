@@ -32,8 +32,8 @@
       },
       {
         "command": "speedrun-timer.stop-timer",
-        "key": "ctrl+shift+x",
-        "mac": "cmd+shift+x"
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
       }
     ]
   },
