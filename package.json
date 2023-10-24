@@ -14,6 +14,23 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "speedrunTimer",
+          "title": "Speedrun Timer",
+          "icon": "./src/images/watch.svg"
+        }
+      ]
+    },
+    "views": {
+      "speedrunTimer": [
+        {
+          "id": "speedrunTimer",
+          "name": "Logs"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "speedrun-timer.start-timer",
@@ -22,6 +39,10 @@
       {
         "command": "speedrun-timer.stop-timer",
         "title": "Stop Speedrun Timer"
+      },
+      {
+        "command": "speedrun-timer.refresh-timer",
+        "title": "Refresh Speedrun Timer"
       }
     ],
     "keybindings": [

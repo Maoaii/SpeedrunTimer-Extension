@@ -1,9 +1,67 @@
 import * as vscode from "vscode";
 
+
+class TimerDataProvider {
+  private timers: TimerTreeItem[];
+
+  private _onDidChangeTreeData: vscode.EventEmitter<void> =
+    new vscode.EventEmitter<void>();
+  readonly onDidChangeTreeData: vscode.Event<void> =
+    this._onDidChangeTreeData.event;
+
+  constructor() {
+    this.timers = [];
+  }
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire();
+  }
+
+  addTimer(timer: TimerTreeItem) {
+    this.timers.push(timer);
+  }
+
+  getTreeItem(
+    element: TimerTreeItem
+  ): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    return element;
+  }
+
+  getChildren(
+    element?: TimerTreeItem | undefined
+  ): vscode.ProviderResult<TimerTreeItem[]> {
+    if (element === undefined) {
+      return this.timers;
+    }
+
+    return element.children;
+  }
+}
+
+class TimerTreeItem extends vscode.TreeItem {
+  children: TimerTreeItem[] | undefined;
+  constructor(label: string, children?: TimerTreeItem[]) {
+    super(
+      label,
+      children === undefined
+        ? vscode.TreeItemCollapsibleState.None
+        : vscode.TreeItemCollapsibleState.Collapsed
+    );
+
+    this.children = children;
+  }
+}
+
 export function activate(context: vscode.ExtensionContext) {
   console.log(
     'Congratulations, your extension "speedrun-timer" is now active!'
   );
+
+  const treeDataProvider = new TimerDataProvider();
+  const treeView = vscode.window.createTreeView("speedrunTimer", {
+    treeDataProvider,
+  });
+  context.subscriptions.push(treeView);
 
   let statusItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right
@@ -64,15 +122,31 @@ export function activate(context: vscode.ExtensionContext) {
               // Save speedrun time
               if (value === "Save speedrun?") {
                 vscode.window
-                  .showSaveDialog({
-                    filters: {
-                      Text: ["txt"],
-                    },
+                  .showInputBox({
+                    prompt: "Enter a name for your speedrun",
+                    placeHolder: "Project Name",
                   })
-                  .then((uri) => {
-                    const data = Buffer.from(`Speedrun time: ${endTime}`);
-                    vscode.workspace.fs.writeFile(uri!, data);
+                  .then((value) => {
+                    if (value === undefined) {
+                      vscode.window.showInformationMessage(
+                        "Speedrun not saved."
+                      );
+                      return;
+                    }
+
+                    // Save to the activity bar log
+                    treeDataProvider.addTimer(
+                      new TimerTreeItem(`${value}`, [
+                        new TimerTreeItem(`Time: ${endTime}`),
+                      ])
+                    );
+                    treeDataProvider.refresh();
+                    vscode.window.showInformationMessage(
+                      "Speedrun saved to activity bar log."
+                    );
                   });
+              } else {
+                vscode.window.showInformationMessage("Speedrun not saved.");
               }
             });
 
