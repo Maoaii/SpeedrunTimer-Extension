@@ -3,6 +3,11 @@
 
 ## [Unreleased]
 
+## [1.0.2]
+
+### Added
+- A new logo for the extension.
+
 ## [1.0.1]
 
 ### Bug Fixes
