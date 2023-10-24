@@ -176,6 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
                     // Save to the activity bar log
                     treeDataProvider.addTimer(
                       new TimerTreeItem(`${value}`, [
+                        new TimerTreeItem(`Date: ${new Date().toDateString()}`),
                         new TimerTreeItem(`Time: ${endTime}`),
                       ])
                     );
