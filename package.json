@@ -2,7 +2,12 @@
   "name": "speedrun-timer",
   "displayName": "Speedrun Timer",
   "description": "Ever wanted to show you friends your amazing coding skills? Set up a project speedrun timer and show them who's boss!",
-  "version": "0.0.1",
+  "publisher": "GirottoOrg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maoaii/SpeedrunTimer-Extension"
+  },
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.83.0"
   },
@@ -19,7 +24,7 @@
         {
           "id": "speedrunTimer",
           "title": "Speedrun Timer",
-          "icon": "./src/images/watch.svg"
+          "icon": "./images/watch.svg"
         }
       ]
     },
@@ -34,7 +39,7 @@
     "viewsWelcome": [
       {
         "view": "speedrunTimer",
-        "contents": "No timer running. \nStart one by clicking the button below, the button on the status bar, or by pressing Ctrl+Shift+S.\n\n[Start Speedrun](command:speedrun-timer.start-timer)",
+        "contents": "No speedrun logged. \nStart one by clicking the button below, the button on the status bar, or by pressing Ctrl+Shift+S.\n\n[Start Speedrun](command:speedrun-timer.start-timer)",
         "when": "!isRunning"
       }
     ],
@@ -50,12 +55,12 @@
       {
         "command": "speedrun-timer.refresh-timer",
         "title": "Refresh Speedrun Timer",
-        "icon": "./src/images/refresh.svg"
+        "icon": "./images/refresh.svg"
       },
       {
         "command": "speedrun-timer.delete-timer",
         "title": "Delete Speedrun Timer",
-        "icon": "./src/images/delete.svg"
+        "icon": "./images/delete.svg"
       }
     ],
     "keybindings": [

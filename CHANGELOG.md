@@ -1,9 +1,15 @@
 # Change Log
 
-All notable changes to the "speedrun-timer" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
 
-- Initial release
+## [1.0.1]
+
+### Bug Fixes
+- Fixed a bug where the tree view icon would not show up in the activity bar.
+- Fixed a bug where the View Actions icon would not show up.
+
+## [1.0.0]
+
+### Added
+Speedrun Timer release
