@@ -3,18 +3,21 @@
 
 ## [Unreleased]
 
-## [1.0.2]
+## [1.0.3] - 24/10/2023
+- Added a date log to the timer logs.
+
+## [1.0.2] - 24/10/2023
 
 ### Added
 - A new logo for the extension.
 
-## [1.0.1]
+## [1.0.1] - 24/10/2023
 
 ### Bug Fixes
 - Fixed a bug where the tree view icon would not show up in the activity bar.
 - Fixed a bug where the View Actions icon would not show up.
 
-## [1.0.0]
+## [1.0.0] - 24/10/2023
 
 ### Added
 Speedrun Timer release
