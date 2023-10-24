@@ -17,8 +17,16 @@ class TimerDataProvider {
     this._onDidChangeTreeData.fire();
   }
 
+  loadTimers(timers: TimerTreeItem[]) {
+    this.timers = timers;
+  }
+
   addTimer(timer: TimerTreeItem) {
     this.timers.push(timer);
+  }
+
+  getTimers() {
+    return this.timers;
   }
 
   getTreeItem(
@@ -61,6 +69,13 @@ export function activate(context: vscode.ExtensionContext) {
   const treeView = vscode.window.createTreeView("speedrunTimer", {
     treeDataProvider,
   });
+
+  // Get the timers from the global state
+  let speedrunLogs = context.globalState.get("speedrun-logs", "");
+  if (speedrunLogs) {
+    let timers = JSON.parse(speedrunLogs);
+    treeDataProvider.loadTimers(timers);
+  }
   context.subscriptions.push(treeView);
 
   let statusItem = vscode.window.createStatusBarItem(
@@ -144,6 +159,10 @@ export function activate(context: vscode.ExtensionContext) {
                     vscode.window.showInformationMessage(
                       "Speedrun saved to activity bar log."
                     );
+
+                    // Update global state with a json string of the timers
+                    let timers = JSON.stringify(treeDataProvider.getTimers());
+                    context.globalState.update("speedrun-logs", timers);
                   });
               } else {
                 vscode.window.showInformationMessage("Speedrun not saved.");
