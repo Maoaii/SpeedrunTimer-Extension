@@ -31,6 +31,13 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "speedrunTimer",
+        "contents": "No timer running. \nStart one by clicking the button below, the button on the status bar, or by pressing Ctrl+Shift+S.\n\n[Start Speedrun](command:speedrun-timer.start-timer)",
+        "when": "!isRunning"
+      }
+    ],
     "commands": [
       {
         "command": "speedrun-timer.start-timer",
