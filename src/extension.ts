@@ -1,83 +1,12 @@
 import * as vscode from "vscode";
+import * as Tree from "./Tree";
 
-
-class TimerDataProvider {
-  private timers: TimerTreeItem[];
-
-  private _onDidChangeTreeData: vscode.EventEmitter<void> =
-    new vscode.EventEmitter<void>();
-  readonly onDidChangeTreeData: vscode.Event<void> =
-    this._onDidChangeTreeData.event;
-
-  constructor() {
-    this.timers = [];
-  }
-
-  refresh(): void {
-    this._onDidChangeTreeData.fire();
-  }
-
-  loadTimers(timers: TimerTreeItem[]) {
-    this.timers = timers;
-  }
-
-  addTimer(timer: TimerTreeItem) {
-    this.timers.push(timer);
-  }
-
-  removeTimer(timer: TimerTreeItem) {
-    this.timers = this.timers.filter((element) => element !== timer);
-  }
-
-  getTimers() {
-    return this.timers;
-  }
-
-  getTreeItem(
-    element: TimerTreeItem
-  ): vscode.TreeItem | Thenable<vscode.TreeItem> {
-    return element;
-  }
-
-  getChildren(
-    element?: TimerTreeItem | undefined
-  ): vscode.ProviderResult<TimerTreeItem[]> {
-    if (element === undefined) {
-      return this.timers;
-    }
-
-    return element.children;
-  }
-}
-
-class TimerTreeItem extends vscode.TreeItem {
-  children: TimerTreeItem[] | undefined;
-  constructor(label: string, children?: TimerTreeItem[]) {
-    super(
-      label,
-      children === undefined
-        ? vscode.TreeItemCollapsibleState.None
-        : vscode.TreeItemCollapsibleState.Collapsed
-    );
-
-    this.children = children;
-    if (this.children) {
-      this.contextValue = "timer";
-    }
-  }
-}
-
-export function activate(context: vscode.ExtensionContext) {
-  console.log(
-    'Congratulations, your extension "speedrun-timer" is now active!'
-  );
-
-  const treeDataProvider = new TimerDataProvider();
+function startTreeView(context: vscode.ExtensionContext) {
+  const treeDataProvider = new Tree.TimerDataProvider();
   const treeView = vscode.window.createTreeView("speedrunTimer", {
     treeDataProvider,
   });
 
-  // Get the timers from the global state
   let speedrunLogs = context.globalState.get("speedrun-logs", "");
   if (speedrunLogs) {
     let timers = JSON.parse(speedrunLogs);
@@ -85,19 +14,11 @@ export function activate(context: vscode.ExtensionContext) {
   }
   context.subscriptions.push(treeView);
 
-  vscode.commands.registerCommand("speedrun-timer.refresh-timer", () => {
-    treeDataProvider.refresh();
-  });
+  return treeDataProvider;
+}
 
-  vscode.commands.registerCommand("speedrun-timer.delete-timer", (node) => {
-    treeDataProvider.removeTimer(node);
-    // Update global state with a json string of the timers
-    let timers = JSON.stringify(treeDataProvider.getTimers());
-    context.globalState.update("speedrun-logs", timers);
-    treeDataProvider.refresh();
-  });
-
-  let statusItem = vscode.window.createStatusBarItem(
+function createStatusItem() {
+  const statusItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right
   );
   statusItem.text = `$(watch) Start speedrun`;
@@ -105,10 +26,37 @@ export function activate(context: vscode.ExtensionContext) {
   statusItem.tooltip = "Click to start the speedrun timer.";
   statusItem.show();
 
-  let disposable = vscode.commands.registerCommand(
-    "speedrun-timer.start-timer",
-    () => {
-      // Set context to true
+  return statusItem;
+}
+export function activate(context: vscode.ExtensionContext) {
+  // Greet the user
+  console.log(
+    'Congratulations, your extension "speedrun-timer" is now active!'
+  );
+
+  // Create a tree view to display the speedrun logs
+  const treeDataProvider = startTreeView(context);
+
+  // Register a command to refresh the speedrun logs
+  vscode.commands.registerCommand("speedrun-timer.refresh-timer", () => {
+    treeDataProvider.refresh();
+  });
+
+  // Register a command to delete a speedrun log
+  vscode.commands.registerCommand("speedrun-timer.delete-timer", (node) => {
+    treeDataProvider.removeTimer(node);
+    let timers = JSON.stringify(treeDataProvider.getTimers());
+    context.globalState.update("speedrun-logs", timers);
+    treeDataProvider.refresh();
+  });
+
+  // Create a status bar item so the user can activate timers
+  const statusItem = createStatusItem();
+
+  // Register a command to start a speedrun timer
+  context.subscriptions.push(
+    vscode.commands.registerCommand("speedrun-timer.start-timer", () => {
+      // Set running to true. Used to disable the start timer
       vscode.commands.executeCommand("setContext", "isRunning", true);
 
       statusItem.hide();
@@ -122,18 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
       timer.show();
 
       // Start the timer
-      let startTime = new Date().getTime();
-      let intervalTimer = setInterval(() => {
-        let currentTime = new Date().getTime();
-        let elapsedTime = currentTime - startTime;
-        let seconds = Math.floor(elapsedTime / 1000);
-        let minutes = Math.floor(seconds / 60);
-        let hours = Math.floor(minutes / 60);
-        seconds = seconds % 60;
-        minutes = minutes % 60;
-        hours = hours % 60;
-        timer.text = `${hours}hr ${minutes}m ${seconds}s`;
-      }, 1000);
+      const intervalTimer = createTimer(timer);
 
       // Show a message box to the user
       vscode.window.showInformationMessage(
@@ -175,9 +112,11 @@ export function activate(context: vscode.ExtensionContext) {
 
                     // Save to the activity bar log
                     treeDataProvider.addTimer(
-                      new TimerTreeItem(`${value}`, [
-                        new TimerTreeItem(`Date: ${new Date().toDateString()}`),
-                        new TimerTreeItem(`Time: ${endTime}`),
+                      new Tree.TimerTreeItem(`${value}`, [
+                        new Tree.TimerTreeItem(
+                          `Date: ${new Date().toDateString()}`
+                        ),
+                        new Tree.TimerTreeItem(`Time: ${endTime}`),
                       ])
                     );
                     treeDataProvider.refresh();
@@ -197,10 +136,8 @@ export function activate(context: vscode.ExtensionContext) {
           stopTimer.dispose();
         }
       );
-    }
+    })
   );
-
-  context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
@@ -208,4 +145,21 @@ export function deactivate() {
   vscode.window.showInformationMessage(
     "Thank you for using Speedrun Timer! Come back soon!"
   );
+}
+
+function createTimer(timer: vscode.StatusBarItem) {
+  let startTime = new Date().getTime();
+  let intervalTimer = setInterval(() => {
+    let currentTime = new Date().getTime();
+    let elapsedTime = currentTime - startTime;
+    let seconds = Math.floor(elapsedTime / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    seconds = seconds % 60;
+    minutes = minutes % 60;
+    hours = hours % 60;
+    timer.text = `${hours}hr ${minutes}m ${seconds}s`;
+  }, 1000);
+
+  return intervalTimer;
 }
