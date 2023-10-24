@@ -25,6 +25,10 @@ class TimerDataProvider {
     this.timers.push(timer);
   }
 
+  removeTimer(timer: TimerTreeItem) {
+    this.timers = this.timers.filter((element) => element !== timer);
+  }
+
   getTimers() {
     return this.timers;
   }
@@ -77,6 +81,18 @@ export function activate(context: vscode.ExtensionContext) {
     treeDataProvider.loadTimers(timers);
   }
   context.subscriptions.push(treeView);
+
+  vscode.commands.registerCommand("speedrun-timer.refresh-timer", () => {
+    treeDataProvider.refresh();
+  });
+
+  vscode.commands.registerCommand("speedrun-timer.delete-timer", (node) => {
+    treeDataProvider.removeTimer(node);
+    // Update global state with a json string of the timers
+    let timers = JSON.stringify(treeDataProvider.getTimers());
+    context.globalState.update("speedrun-logs", timers);
+    treeDataProvider.refresh();
+  });
 
   let statusItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right

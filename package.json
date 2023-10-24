@@ -42,7 +42,13 @@
       },
       {
         "command": "speedrun-timer.refresh-timer",
-        "title": "Refresh Speedrun Timer"
+        "title": "Refresh Speedrun Timer",
+        "icon": "./src/images/refresh.svg"
+      },
+      {
+        "command": "speedrun-timer.delete-timer",
+        "title": "Delete Speedrun Timer",
+        "icon": "./src/images/delete.svg"
       }
     ],
     "keybindings": [
@@ -56,7 +62,23 @@
         "key": "ctrl+shift+s",
         "mac": "cmd+shift+s"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "speedrun-timer.refresh-timer",
+          "when": "view == speedrunTimer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "speedrun-timer.delete-timer",
+          "when": "view == speedrunTimer",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
