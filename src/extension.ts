@@ -105,6 +105,9 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     "speedrun-timer.start-timer",
     () => {
+      // Set context to true
+      vscode.commands.executeCommand("setContext", "isRunning", true);
+
       statusItem.hide();
       // Add a timer to the status bar
       let timer = vscode.window.createStatusBarItem(
@@ -138,6 +141,8 @@ export function activate(context: vscode.ExtensionContext) {
       let stopTimer = vscode.commands.registerCommand(
         "speedrun-timer.stop-timer",
         () => {
+          // Set context to false
+          vscode.commands.executeCommand("setContext", "isRunning", false);
           let endTime = timer.text;
           clearInterval(intervalTimer);
           timer.hide();
