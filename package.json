@@ -75,7 +75,7 @@
       "view/item/context": [
         {
           "command": "speedrun-timer.delete-timer",
-          "when": "view == speedrunTimer",
+          "when": "view == speedrunTimer && viewItem == timer",
           "group": "inline"
         }
       ]

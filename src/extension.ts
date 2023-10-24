@@ -61,6 +61,9 @@ class TimerTreeItem extends vscode.TreeItem {
     );
 
     this.children = children;
+    if (this.children) {
+      this.contextValue = "timer";
+    }
   }
 }
 
@@ -150,13 +153,13 @@ export function activate(context: vscode.ExtensionContext) {
 
           vscode.window
             .showInformationMessage(
-              `Nice work! \nYour time was: ${endTime}.`,
-              "Save speedrun?",
-              "No thanks"
+              `Nice work! \nYour time was: ${endTime}.\n\nWould you like to save your speedrun?`,
+              "Save",
+              "Discard"
             )
             .then((value) => {
               // Save speedrun time
-              if (value === "Save speedrun?") {
+              if (value === "Save") {
                 vscode.window
                   .showInputBox({
                     prompt: "Enter a name for your speedrun",
