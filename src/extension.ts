@@ -153,7 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
 
           vscode.window
             .showInformationMessage(
-              `Nice work! \nYour time was: ${endTime}.\n\nWould you like to save your speedrun?`,
+              `Nice work! Your time was: ${endTime}. Would you like to save your speedrun?`,
               "Save",
               "Discard"
             )
