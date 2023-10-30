@@ -3,6 +3,13 @@
 
 ## [Unreleased]
 
+## [1.2.2] - 30/10/2023
+
+### Bug Fixes
+- Fixed a bug where the words per minute log would output "NaN" if the user did not write any words.
+- Fixed README.md Future Work section to show the features that were already implemented.
+
+
 ## [1.2.1] - 30/10/2023
 
 ### Changed

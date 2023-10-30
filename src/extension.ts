@@ -214,6 +214,13 @@ function saveSpeedrun(
         return;
       }
 
+      const wordsPerMinute = Math.floor(
+        wordsWritten /
+          (parseInt(endTime.split(" ")[1]) +
+            parseInt(endTime.split(" ")[0]) * 60 +
+            parseInt(endTime.split(" ")[2]) / 60)
+      );
+
       // Save to the activity bar log
       treeDataProvider.addTimer(
         new Tree.TimerTreeItem(`${value}`, [
@@ -222,12 +229,7 @@ function saveSpeedrun(
           new Tree.TimerTreeItem(`Characters: ${charsWritten}`),
           new Tree.TimerTreeItem(`Words: ${wordsWritten}`),
           new Tree.TimerTreeItem(
-            `Words per Minute: ${Math.floor(
-              wordsWritten /
-                (parseInt(endTime.split(" ")[1]) +
-                  parseInt(endTime.split(" ")[0]) * 60 +
-                  parseInt(endTime.split(" ")[2]) / 60)
-            )}`
+            `Words per Minute: ${!wordsPerMinute ? "N/A" : wordsPerMinute}`
           ),
         ])
       );
