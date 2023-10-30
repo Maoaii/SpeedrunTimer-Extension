@@ -32,10 +32,28 @@ export function activate(context: vscode.ExtensionContext) {
   const startButton = createStatusBarStart();
   let statusTimer: vscode.StatusBarItem;
   let intervalTimer: NodeJS.Timeout;
+  let charsWritten = 0;
 
   // Register a command to start a speedrun timer
   context.subscriptions.push(
     vscode.commands.registerCommand("speedrun-timer.start-timer", () => {
+      charsWritten = 0;
+      // Keep track of written characters
+      vscode.workspace.onDidChangeTextDocument((e) => {
+        const change = e.contentChanges[0].text;
+
+        if (
+          change === " " ||
+          change === "\n" ||
+          change === "\t" ||
+          change === ""
+        ) {
+          return;
+        }
+
+        charsWritten += change.length;
+      });
+
       // Set running to true. Used to disable the start timer
       vscode.commands.executeCommand("setContext", "isRunning", true);
 
@@ -78,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
         .then((value) => {
           // Save speedrun time
           if (value === SAVE_SPEEDRUN) {
-            saveSpeedrun(context, treeDataProvider, endTime);
+            saveSpeedrun(context, treeDataProvider, endTime, charsWritten);
           } else {
             vscode.window.showInformationMessage("Speedrun not saved.");
           }
@@ -137,7 +155,8 @@ function createStatusBarTimer() {
 function saveSpeedrun(
   context: vscode.ExtensionContext,
   treeDataProvider: Tree.TimerDataProvider,
-  endTime: string
+  endTime: string,
+  charsWritten: number
 ) {
   vscode.window
     .showInputBox({
@@ -155,6 +174,7 @@ function saveSpeedrun(
         new Tree.TimerTreeItem(`${value}`, [
           new Tree.TimerTreeItem(`Date: ${new Date().toDateString()}`),
           new Tree.TimerTreeItem(`Time: ${endTime}`),
+          new Tree.TimerTreeItem(`Chars Written: ${charsWritten}`),
         ])
       );
       treeDataProvider.refresh();
