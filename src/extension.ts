@@ -58,13 +58,22 @@ export function activate(context: vscode.ExtensionContext) {
   let charsWritten: number;
   let wordsWritten: number;
   let lastChar: string;
+  let isRunning: boolean = false;
 
   // Register a command to start a speedrun timer
   context.subscriptions.push(
     vscode.commands.registerCommand("speedrun-timer.start-timer", () => {
+      if (isRunning) {
+        vscode.commands.executeCommand("speedrun-timer.stop-timer");
+
+        return;
+      }
+
+      isRunning = true;
       charsWritten = 0;
       wordsWritten = 0;
       lastChar = "";
+
       // Keep track of written characters
       vscode.workspace.onDidChangeTextDocument((e) => {
         const change = e.contentChanges[0].text;
@@ -87,9 +96,6 @@ export function activate(context: vscode.ExtensionContext) {
         lastChar = change[change.length - 1];
       });
 
-      // Set running to true. Used to disable the start timer
-      vscode.commands.executeCommand("setContext", "isRunning", true);
-
       startButton.hide();
       // Add a timer to the status bar
       statusTimer = createStatusBarTimer();
@@ -107,8 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Register command to stop a speedrun timer
   context.subscriptions.push(
     vscode.commands.registerCommand("speedrun-timer.stop-timer", () => {
-      // Set running to false so the start timer can be used again.
-      vscode.commands.executeCommand("setContext", "isRunning", false);
+      isRunning = false;
 
       // Store end time for further use
       const endTime = statusTimer.text;

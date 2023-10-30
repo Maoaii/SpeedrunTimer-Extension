@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/Maoaii/SpeedrunTimer-Extension"
   },
-  "version": "1.2.0",
+  "version": "1.2.1",
   "engines": {
     "vscode": "^1.83.0"
   },
@@ -74,7 +74,7 @@
         "command": "speedrun-timer.stop-timer",
         "key": "ctrl+shift+s",
         "mac": "cmd+shift+s",
-        "when": "isRunning"
+        "when": "isRunning == true"
       }
     ],
     "menus": {

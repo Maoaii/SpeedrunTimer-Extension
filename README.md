@@ -40,4 +40,3 @@ With **Speedrun Timer**, you can time yourself and show your friends who's boss!
 - [X] Add number of words written to the log.
 - [X] Add words per minute to the log.
 - [ ] Enable user to change the name of the speedrun.
-- [ ] Enable user to change the keyboard shortcuts.

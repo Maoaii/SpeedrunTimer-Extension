@@ -3,6 +3,14 @@
 
 ## [Unreleased]
 
+## [1.2.1] - 30/10/2023
+
+### Changed
+- Changed the README.md file to be up-to-date.
+
+### Bug Fixes
+- Fixed a bug where the timer would not stop when the user used the keyboard shortcut to stop the timer. It would also create a new timer in addition to the one that was already running.
+
 ## [1.2.0] - 30/10/2023
 
 ### Added
