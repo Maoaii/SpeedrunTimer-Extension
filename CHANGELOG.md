@@ -3,6 +3,11 @@
 
 ## [Unreleased]
 
+## [1.1.0] - 30/10/2023
+
+### Added
+- Added a new feature where the user can check the number of characters written in the speedrun.
+
 ## [1.0.3] - 24/10/2023
 - Added a date log to the timer logs.
 
