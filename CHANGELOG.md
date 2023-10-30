@@ -3,6 +3,12 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 30/10/2023
+
+### Added
+- Added a new feature where the user can check the number of words written in the speedrun.
+- Added a new feature where the user can check the number of words per minute written in the speedrun.
+
 ## [1.1.0] - 30/10/2023
 
 ### Added
