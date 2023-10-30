@@ -5,13 +5,36 @@ import * as Tree from "./Tree";
 const SAVE_SPEEDRUN = "Save";
 const DISCARD_SPEEDRUN = "Discard";
 
+function isLetter(str: string) {
+  // Regex that matches any letter and apostophes
+  return str.length === 1 && str.match(/[a-z']/i);
+}
+
+function countWords(str: string) {
+  let lastChar = "";
+  let wordCount = 0;
+
+  // If str only contains apostrophes or quotes, return 0
+  if (!str.match(/[a-z]/i)) {
+    return 0;
+  }
+
+  for (let i = 0; i < str.length; i++) {
+    const currChar = str[i];
+    if (
+      (!isLetter(currChar) && isLetter(lastChar)) ||
+      (i === str.length - 1 && isLetter(currChar))
+    ) {
+      wordCount++;
+    }
+
+    lastChar = currChar;
+  }
+
+  return wordCount;
+}
 
 export function activate(context: vscode.ExtensionContext) {
-  // Greet the user
-  console.log(
-    'Congratulations, your extension "speedrun-timer" is now active!'
-  );
-
   // Create a tree view to display the speedrun logs
   const treeDataProvider = startTreeView(context);
 
@@ -32,26 +55,36 @@ export function activate(context: vscode.ExtensionContext) {
   const startButton = createStatusBarStart();
   let statusTimer: vscode.StatusBarItem;
   let intervalTimer: NodeJS.Timeout;
-  let charsWritten = 0;
+  let charsWritten: number;
+  let wordsWritten: number;
+  let lastChar: string;
 
   // Register a command to start a speedrun timer
   context.subscriptions.push(
     vscode.commands.registerCommand("speedrun-timer.start-timer", () => {
       charsWritten = 0;
+      wordsWritten = 0;
+      lastChar = "";
       // Keep track of written characters
       vscode.workspace.onDidChangeTextDocument((e) => {
         const change = e.contentChanges[0].text;
 
-        if (
-          change === " " ||
-          change === "\n" ||
-          change === "\t" ||
-          change === ""
-        ) {
+        if (change === "") {
           return;
         }
 
-        charsWritten += change.length;
+        if (change.length > 1) {
+          // Count words in changes
+          wordsWritten += countWords(change);
+        } else if (!isLetter(change) && isLetter(lastChar)) {
+          wordsWritten++;
+        }
+
+        if (change !== "\n" && change !== "\t") {
+          charsWritten += change.length;
+        }
+
+        lastChar = change[change.length - 1];
       });
 
       // Set running to true. Used to disable the start timer
@@ -96,7 +129,13 @@ export function activate(context: vscode.ExtensionContext) {
         .then((value) => {
           // Save speedrun time
           if (value === SAVE_SPEEDRUN) {
-            saveSpeedrun(context, treeDataProvider, endTime, charsWritten);
+            saveSpeedrun(
+              context,
+              treeDataProvider,
+              endTime,
+              charsWritten,
+              wordsWritten
+            );
           } else {
             vscode.window.showInformationMessage("Speedrun not saved.");
           }
@@ -156,7 +195,8 @@ function saveSpeedrun(
   context: vscode.ExtensionContext,
   treeDataProvider: Tree.TimerDataProvider,
   endTime: string,
-  charsWritten: number
+  charsWritten: number,
+  wordsWritten: number
 ) {
   vscode.window
     .showInputBox({
@@ -174,7 +214,16 @@ function saveSpeedrun(
         new Tree.TimerTreeItem(`${value}`, [
           new Tree.TimerTreeItem(`Date: ${new Date().toDateString()}`),
           new Tree.TimerTreeItem(`Time: ${endTime}`),
-          new Tree.TimerTreeItem(`Chars Written: ${charsWritten}`),
+          new Tree.TimerTreeItem(`Characters: ${charsWritten}`),
+          new Tree.TimerTreeItem(`Words: ${wordsWritten}`),
+          new Tree.TimerTreeItem(
+            `Words per Minute: ${Math.floor(
+              wordsWritten /
+                (parseInt(endTime.split(" ")[1]) +
+                  parseInt(endTime.split(" ")[0]) * 60 +
+                  parseInt(endTime.split(" ")[2]) / 60)
+            )}`
+          ),
         ])
       );
       treeDataProvider.refresh();
